@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  orpheus-tts:
+    build: .
+    container_name: orpheus-tts
+    environment:
+      - PORT=${PORT:-8899}
+      - GPU_IDLE_TIMEOUT=${GPU_IDLE_TIMEOUT:-60}
+      - HF_TOKEN=${HF_TOKEN}
+    ports:
+      - "0.0.0.0:${PORT:-8899}:${PORT:-8899}"
+    volumes:
+      - ./outputs:/app/outputs
+      - huggingface_cache:/root/.cache/huggingface
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${PORT:-8899}/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ['${NVIDIA_VISIBLE_DEVICES:-0}']
+              capabilities: [gpu]
+
+volumes:
+  huggingface_cache:

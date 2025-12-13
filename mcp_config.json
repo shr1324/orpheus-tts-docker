@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "orpheus-tts": {
+      "command": "python3",
+      "args": ["/home/neo/upload/Orpheus-TTS/mcp_server.py"],
+      "env": {
+        "GPU_IDLE_TIMEOUT": "600",
+        "PYTHONPATH": "/home/neo/upload/Orpheus-TTS"
+      }
+    }
+  }
+}
