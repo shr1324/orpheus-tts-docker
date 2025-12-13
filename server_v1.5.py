@@ -254,15 +254,8 @@ UI_HTML = '''
                         <option value="mia">Mia</option>
                         <option value="zac">Zac</option>
                         <option value="zoe">Zoe</option>
-                        <option value="custom">🎤 自定义语音克隆</option>
                     </select>
                 </div>
-            </div>
-            
-            <div class="form-group" id="voice-clone-section" style="display: none;">
-                <label data-i18n="voiceFile">参考音频文件（用于零样本克隆）</label>
-                <input type="file" id="voice-file" accept="audio/*" style="padding: 8px;">
-                <small style="color: #888; display: block; margin-top: 5px;">上传3-10秒的清晰语音样本</small>
             </div>
             
             <div class="row">
@@ -291,8 +284,6 @@ UI_HTML = '''
             <div class="status" id="status"></div>
             
             <audio id="audio" controls style="display:none"></audio>
-            
-            <div id="timing" style="display:none"></div>
         </div>
     </div>
     
@@ -361,46 +352,26 @@ UI_HTML = '''
             if (!text) return alert('请输入文本');
             
             const btn = event.target;
-            const voice = document.getElementById('voice').value;
-            const voiceFile = document.getElementById('voice-file').files[0];
-            
             btn.disabled = true;
             btn.textContent = i18n[currentLang].generating;
             document.getElementById('progress').style.display = 'block';
             document.getElementById('status').textContent = '';
-            document.getElementById('timing').style.display = 'none';
             
             try {
-                const requestData = {
-                    text,
-                    model_size: 'medium',
-                    voice,
-                    temperature: parseFloat(document.getElementById('temperature').value),
-                    top_p: parseFloat(document.getElementById('top_p').value),
-                    repetition_penalty: parseFloat(document.getElementById('repetition_penalty').value)
-                };
-                
-                // 处理自定义语音克隆
-                if (voice === 'custom' && voiceFile) {
-                    const reader = new FileReader();
-                    requestData.voice_audio = await new Promise((resolve) => {
-                        reader.onload = () => resolve(reader.result.split(',')[1]);
-                        reader.readAsDataURL(voiceFile);
-                    });
-                }
-                
                 const res = await fetch('/api/generate', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(requestData)
+                    body: JSON.stringify({
+                        text,
+                        model: document.getElementById('model').value,
+                        voice: document.getElementById('voice').value,
+                        temperature: parseFloat(document.getElementById('temperature').value),
+                        top_p: parseFloat(document.getElementById('top_p').value),
+                        repetition_penalty: parseFloat(document.getElementById('repetition_penalty').value)
+                    })
                 });
                 
                 if (!res.ok) throw new Error(await res.text());
-                
-                // 获取计时信息
-                const modelLoadTime = res.headers.get('X-Model-Load-Time') || '0';
-                const generationTime = res.headers.get('X-Generation-Time') || '0';
-                const totalTime = res.headers.get('X-Total-Time') || '0';
                 
                 const blob = await res.blob();
                 const url = URL.createObjectURL(blob);
@@ -408,26 +379,6 @@ UI_HTML = '''
                 audio.src = url;
                 audio.style.display = 'block';
                 audio.play();
-                
-                // 显示计时信息
-                const timingDiv = document.getElementById('timing');
-                timingDiv.innerHTML = `
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px;">
-                        <div style="text-align: center; padding: 10px; background: #2a2a2a; border-radius: 8px;">
-                            <div style="font-size: 12px; color: #888;">模型加载</div>
-                            <div style="font-size: 20px; font-weight: bold; color: #667eea;">${modelLoadTime}s</div>
-                        </div>
-                        <div style="text-align: center; padding: 10px; background: #2a2a2a; border-radius: 8px;">
-                            <div style="font-size: 12px; color: #888;">音频生成</div>
-                            <div style="font-size: 20px; font-weight: bold; color: #764ba2;">${generationTime}s</div>
-                        </div>
-                        <div style="text-align: center; padding: 10px; background: #2a2a2a; border-radius: 8px;">
-                            <div style="font-size: 12px; color: #888;">总耗时</div>
-                            <div style="font-size: 20px; font-weight: bold; color: #4ade80;">${totalTime}s</div>
-                        </div>
-                    </div>
-                `;
-                timingDiv.style.display = 'block';
                 
                 document.getElementById('status').textContent = i18n[currentLang].success;
                 updateGPUStatus();
@@ -448,12 +399,6 @@ UI_HTML = '''
         updateGPUStatus();
         setInterval(updateGPUStatus, 5000);
         switchLanguage();
-        
-        // 语音克隆选项切换
-        document.getElementById('voice').addEventListener('change', function() {
-            const voiceCloneSection = document.getElementById('voice-clone-section');
-            voiceCloneSection.style.display = this.value === 'custom' ? 'block' : 'none';
-        });
     </script>
 </body>
 </html>
