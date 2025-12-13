@@ -14,7 +14,7 @@
 - 🎯 **智能 GPU 管理**：懒加载 + 自动卸载（1小时超时）
 - 🌐 **三种访问模式**：Web UI、REST API 和 MCP（模型上下文协议）
 - 🚀 **性能优化**：模型加载后推理仅需 ~2.5秒
-- 🔒 **生产就绪**：支持 Nginx 反向代理和 SSL
+- 🔐 **隐私保护**：所有音频文件保存到宿主机 `/tmp/orpheus-tts`，容器内不保留数据
 - 🎨 **现代化 Web UI**：暗色主题，支持中英文切换
 - 📊 **API 文档**：内置 Swagger UI
 - 🎤 **8种语音选项**：tara, leah, jess, leo, dan, mia, zac, zoe
@@ -46,16 +46,16 @@
 export HF_TOKEN=your_huggingface_token
 
 # 拉取并运行
-docker pull neosun/orpheus-tts:v1.0.0-allinone
+docker pull neosun/orpheus-tts:v1.5.0-allinone
 
 docker run -d \
   --name orpheus-tts \
   --gpus '"device=0"' \
   -p 8899:8899 \
   -e HF_TOKEN=$HF_TOKEN \
-  -v $(pwd)/outputs:/app/outputs \
+  -v /tmp/orpheus-tts:/app/outputs \
   --restart unless-stopped \
-  neosun/orpheus-tts:v1.0.0-allinone
+  neosun/orpheus-tts:v1.5.0-allinone
 
 # 等待服务启动（约30秒）
 sleep 30

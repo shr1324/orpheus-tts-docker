@@ -15,6 +15,7 @@ Production-ready Docker deployment for Orpheus TTS with GPU management, multi-ac
 - 🌐 **Three Access Modes**: Web UI, REST API, and MCP (Model Context Protocol)
 - 🚀 **Optimized Performance**: ~2.5s inference after model loading
 - 🔒 **Production Ready**: Nginx reverse proxy with SSL support
+- 🔐 **Privacy Protection**: All audio files saved to host `/tmp/orpheus-tts`, no data retained in container
 - 🎨 **Modern Web UI**: Dark theme with Chinese/English toggle
 - 📊 **API Documentation**: Built-in Swagger UI
 - 🎤 **8 Voice Options**: tara, leah, jess, leo, dan, mia, zac, zoe
@@ -46,16 +47,16 @@ Production-ready Docker deployment for Orpheus TTS with GPU management, multi-ac
 export HF_TOKEN=your_huggingface_token
 
 # Pull and run
-docker pull neosun/orpheus-tts:v1.0.0-allinone
+docker pull neosun/orpheus-tts:v1.5.0-allinone
 
 docker run -d \
   --name orpheus-tts \
   --gpus '"device=0"' \
   -p 8899:8899 \
   -e HF_TOKEN=$HF_TOKEN \
-  -v $(pwd)/outputs:/app/outputs \
+  -v /tmp/orpheus-tts:/app/outputs \
   --restart unless-stopped \
-  neosun/orpheus-tts:v1.0.0-allinone
+  neosun/orpheus-tts:v1.5.0-allinone
 
 # Wait for service to start (~30 seconds)
 sleep 30

@@ -12,10 +12,15 @@ import os
 import uuid
 import time
 import base64
+import tempfile
 
 app = Flask(__name__)
 CORS(app)
 swagger = Swagger(app)
+
+# 输出目录配置 - 使用宿主机挂载路径保护隐私
+OUTPUT_DIR = os.environ.get('OUTPUT_DIR', '/app/outputs')
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 MODEL_CONFIGS = {
     "medium-3b": "canopylabs/orpheus-3b-0.1-ft",
