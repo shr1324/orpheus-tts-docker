@@ -233,7 +233,7 @@ UI_HTML = '''
     </select>
     
     <div class="container">
-        <h1 data-i18n="title">Orpheus TTS</h1>
+        <h1 data-i18n="title">Orpheus TTS <span style="font-size: 14px; font-weight: normal;"><a href="/apidocs/" target="_blank" style="color: #667eea; text-decoration: none;">📖 API Docs</a></span></h1>
         
         <div class="card">
             <div class="gpu-status">

@@ -120,8 +120,23 @@ Features:
 - Real-time audio generation
 - Download generated audio
 - Dark theme with language toggle
+- **API Documentation link** (📖 API Docs in header)
 
 ### REST API
+
+#### Interactive API Documentation
+
+**Swagger UI** (recommended for testing):
+```
+http://localhost:8899/apidocs/
+```
+
+**OpenAPI Specification**:
+```
+http://localhost:8899/apispec_1.json
+```
+
+**Complete API Guide**: See [docs/API_GUIDE.md](docs/API_GUIDE.md)
 
 #### Generate Speech
 
