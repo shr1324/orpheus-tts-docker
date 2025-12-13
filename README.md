@@ -4,7 +4,7 @@
 
 [![Docker Image](https://img.shields.io/badge/docker-neosun%2Forpheus--tts-blue)](https://hub.docker.com/r/neosun/orpheus-tts)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-[![Version](https://img.shields.io/badge/version-v1.0.0-orange)](https://github.com/neosun100/orpheus-tts-docker/releases)
+[![Version](https://img.shields.io/badge/version-v1.5.0-orange)](https://github.com/neosun100/orpheus-tts-docker/releases)
 
 Production-ready Docker deployment for Orpheus TTS with GPU management, multi-access modes, and optimized performance.
 
@@ -312,6 +312,15 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 5. Open a Pull Request
 
 ## 📝 Changelog
+
+### v1.5.0 (2025-12-14)
+- ✅ Model preloading on startup (26x faster first request)
+- ✅ Zero-shot voice cloning UI with file upload
+- ✅ Generation timing display (model load, generation, total)
+- ✅ Privacy protection: host volume mount `/tmp/orpheus-tts`
+- ✅ Performance: 3.7s generation (was 48s in v1.0)
+- ✅ Memory optimization: 29.8GB VRAM (was 39GB)
+- ✅ Docker Hub image: neosun/orpheus-tts:v1.5.0-allinone
 
 ### v1.0.0 (2025-12-13)
 - ✅ Initial Docker deployment

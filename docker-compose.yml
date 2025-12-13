@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   orpheus-tts:
-    build: .
+    image: neosun/orpheus-tts:v1.5.0-allinone
     container_name: orpheus-tts
     environment:
       - PORT=${PORT:-8899}

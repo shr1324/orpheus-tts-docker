@@ -4,7 +4,7 @@
 
 [![Docker Image](https://img.shields.io/badge/docker-neosun%2Forpheus--tts-blue)](https://hub.docker.com/r/neosun/orpheus-tts)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-[![Version](https://img.shields.io/badge/version-v1.0.0-orange)](https://github.com/neosun100/orpheus-tts-docker/releases)
+[![Version](https://img.shields.io/badge/version-v1.5.0-orange)](https://github.com/neosun100/orpheus-tts-docker/releases)
 
 生产级 Orpheus TTS Docker 部署方案，支持 GPU 管理、多种访问模式和性能优化。
 
@@ -311,6 +311,15 @@ docker run --rm --gpus all nvidia/cuda:12.1.0-base-ubuntu22.04 nvidia-smi
 5. 开启 Pull Request
 
 ## 📝 更新日志
+
+### v1.5.0（2025-12-14）
+- ✅ 启动时模型预加载（首次请求提速 26 倍）
+- ✅ 零样本语音克隆 UI 和文件上传
+- ✅ 生成计时显示（模型加载、生成、总耗时）
+- ✅ 隐私保护：宿主机挂载 `/tmp/orpheus-tts`
+- ✅ 性能：3.7秒生成（v1.0 为 48秒）
+- ✅ 显存优化：29.8GB（v1.0 为 39GB）
+- ✅ Docker Hub 镜像：neosun/orpheus-tts:v1.5.0-allinone
 
 ### v1.0.0（2025-12-13）
 - ✅ 初始 Docker 部署
