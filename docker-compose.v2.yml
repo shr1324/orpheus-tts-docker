@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  orpheus-tts-v2:
+    build:
+      context: .
+      dockerfile: Dockerfile.v2
+    container_name: orpheus-tts-v2
+    environment:
+      - PORT=${PORT:-8899}
+      - GPU_IDLE_TIMEOUT=${GPU_IDLE_TIMEOUT:-3600}
+      - HF_TOKEN=${HF_TOKEN}
+    ports:
+      - "0.0.0.0:${PORT:-8899}:${PORT:-8899}"
+    volumes:
+      - /tmp/orpheus-tts:/app/outputs
+      - huggingface_cache:/root/.cache/huggingface
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${PORT:-8899}/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ['${NVIDIA_VISIBLE_DEVICES:-3}']
+              capabilities: [gpu]
+
+volumes:
+  huggingface_cache:
