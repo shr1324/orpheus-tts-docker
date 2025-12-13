@@ -4,7 +4,7 @@
 
 [![Docker Image](https://img.shields.io/badge/docker-neosun%2Forpheus--tts-blue)](https://hub.docker.com/r/neosun/orpheus-tts)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-[![Version](https://img.shields.io/badge/version-v1.5.0-orange)](https://github.com/neosun100/orpheus-tts-docker/releases)
+[![Version](https://img.shields.io/badge/version-v2.0.0-orange)](https://github.com/neosun100/orpheus-tts-docker/releases)
 
 Production-ready Docker deployment for Orpheus TTS with GPU management, multi-access modes, and optimized performance.
 
@@ -22,14 +22,27 @@ Production-ready Docker deployment for Orpheus TTS with GPU management, multi-ac
 
 ## 🎯 Model Information
 
+### v2.0.0 (Current - AWQ 4-bit Quantized)
+- **Model**: Hariprasath28/orpheus-3b-4bit-AWQ
+- **Quantization**: AWQ 4-bit
+- **Precision**: float16
+- **Parameters**: 3B (3 billion)
+- **Model Weights**: 2.30GB (62% reduction from bfloat16)
+- **VRAM Usage**: ~31.5GB (model 2.30GB + KV cache 27.42GB)
+- **Performance**: 
+  - Model preload: ~50s (on startup)
+  - Generation: ~1.4s per request
+  - Streaming latency: ~200ms
+
+### v1.5.0 (bfloat16 Full Precision)
 - **Model**: canopylabs/orpheus-3b-0.1-ft
 - **Precision**: bfloat16 (full precision)
 - **Parameters**: 3B (3 billion)
-- **VRAM Usage**: ~39GB (gpu_memory_utilization=0.7)
+- **Model Weights**: 6.18GB
+- **VRAM Usage**: ~29.8GB (with preloading)
 - **Performance**: 
-  - First request: ~48s (model loading)
-  - Subsequent requests: ~2.5s
-  - Streaming latency: ~200ms
+  - Model preload: ~47s (on startup)
+  - Generation: ~2.5s per request
 
 ## 🚀 Quick Start
 
@@ -46,8 +59,8 @@ Production-ready Docker deployment for Orpheus TTS with GPU management, multi-ac
 # Set your HuggingFace token
 export HF_TOKEN=your_huggingface_token
 
-# Pull and run
-docker pull neosun/orpheus-tts:v1.5.0-allinone
+# Pull and run (v2.0.0 with AWQ 4-bit quantization)
+docker pull neosun/orpheus-tts:v2.0.0-allinone
 
 docker run -d \
   --name orpheus-tts \
@@ -56,7 +69,7 @@ docker run -d \
   -e HF_TOKEN=$HF_TOKEN \
   -v /tmp/orpheus-tts:/app/outputs \
   --restart unless-stopped \
-  neosun/orpheus-tts:v1.5.0-allinone
+  neosun/orpheus-tts:v2.0.0-allinone
 
 # Wait for service to start (~30 seconds)
 sleep 30
@@ -180,7 +193,7 @@ version: '3.8'
 
 services:
   orpheus-tts:
-    image: neosun/orpheus-tts:v1.0.0-bfloat16-3b-allinone
+    image: neosun/orpheus-tts:v2.0.0-allinone
     container_name: orpheus-tts
     environment:
       - PORT=${PORT:-8899}
@@ -189,7 +202,7 @@ services:
     ports:
       - "0.0.0.0:${PORT:-8899}:${PORT:-8899}"
     volumes:
-      - ./outputs:/app/outputs
+      - /tmp/orpheus-tts:/app/outputs
       - huggingface_cache:/root/.cache/huggingface
     restart: unless-stopped
     deploy:
@@ -312,6 +325,16 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 5. Open a Pull Request
 
 ## 📝 Changelog
+
+### v2.0.0 (2025-12-14)
+- ✅ AWQ 4-bit quantization (62% model weight reduction)
+- ✅ Model preloading on startup (~50s load time)
+- ✅ Fast generation: 1.4s per request
+- ✅ Model weights: 2.30GB (vs 6.18GB bfloat16)
+- ✅ VRAM usage: 31.5GB (model 2.30GB + KV cache 27.42GB)
+- ✅ Privacy protection: host volume mount `/tmp/orpheus-tts`
+- ✅ Docker Hub image: neosun/orpheus-tts:v2.0.0-allinone
+- ✅ Digest: sha256:686a55ef49a607bad0ba2bda472cb54cb5846af3609b2b8f2bfd2a251546f077
 
 ### v1.5.0 (2025-12-14)
 - ✅ Model preloading on startup (26x faster first request)
