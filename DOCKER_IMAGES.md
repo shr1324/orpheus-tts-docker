@@ -2,8 +2,12 @@
 
 ## 镜像标签体系
 
+### Docker Hub 仓库
+**仓库地址**: https://hub.docker.com/r/neosun/orpheus-tts
+
 ### v1.0.0-bfloat16-3b-allinone
-**完整标签**: `orpheus-tts:v1.0.0-bfloat16-3b-allinone`
+**完整标签**: `neosun/orpheus-tts:v1.0.0-bfloat16-3b-allinone`  
+**Digest**: `sha256:8bb23924ecb7c3a04f7cc89760a1e6c4d25854115af57b588f61dec35fa35a7a`
 
 **模型信息**:
 - 模型: `canopylabs/orpheus-3b-0.1-ft`
@@ -27,24 +31,32 @@
 
 **使用方法**:
 ```bash
+# 从 Docker Hub 拉取并运行
+docker pull neosun/orpheus-tts:v1.0.0-allinone
+
 # 使用完整标签
 docker run --gpus '"device=3"' -p 8899:8899 \
   -e HF_TOKEN=your_token \
-  orpheus-tts:v1.0.0-bfloat16-3b-allinone
+  neosun/orpheus-tts:v1.0.0-bfloat16-3b-allinone
 
 # 或使用简短标签
 docker run --gpus '"device=3"' -p 8899:8899 \
   -e HF_TOKEN=your_token \
-  orpheus-tts:v1.0.0-allinone
+  neosun/orpheus-tts:v1.0.0-allinone
+
+# 或使用 latest
+docker run --gpus '"device=3"' -p 8899:8899 \
+  -e HF_TOKEN=your_token \
+  neosun/orpheus-tts:latest
 ```
 
 ### 标签别名
 
 | 标签 | 说明 |
 |------|------|
-| `orpheus-tts:v1.0.0-bfloat16-3b-allinone` | 完整描述标签 (推荐) |
-| `orpheus-tts:v1.0.0-allinone` | 版本标签 |
-| `orpheus-tts:latest` | 最新版本 |
+| `neosun/orpheus-tts:v1.0.0-bfloat16-3b-allinone` | 完整描述标签 (推荐) |
+| `neosun/orpheus-tts:v1.0.0-allinone` | 版本标签 |
+| `neosun/orpheus-tts:latest` | 最新版本 |
 
 ## Git 里程碑
 

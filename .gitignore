@@ -1,30 +1,104 @@
+# Sensitive Information
+.env
+*.key
+*.pem
+*.p12
+*.pfx
+*_rsa
+*_dsa
+*_ecdsa
+*_ed25519
+secrets/
+credentials/
+config/local.py
+
+# API Keys and Tokens
+*token*
+*secret*
+*password*
+*api_key*
+.huggingface/
+
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
-env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
 venv/
+env/
 ENV/
+.venv
 
-# Docker
-.env
+# PyTorch
+*.pth
+*.pt
+*.ckpt
+checkpoints/
+wandb/
 
-# Outputs
-outputs/
-*.wav
-test_output.wav
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
 
-# IDE
-.vscode/
+# IDEs
 .idea/
+.vscode/
 *.swp
 *.swo
-
-# OS
+*~
 .DS_Store
 Thumbs.db
 
 # Logs
 *.log
+logs/
+*.out
+
+# Docker
+.dockerignore
+
+# Output files
+outputs/
+output/
+generated/
+temp/
+tmp/
+
+# Model files (large)
+*.bin
+*.safetensors
+models/
+cache/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
